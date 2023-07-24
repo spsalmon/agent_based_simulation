@@ -42,6 +42,13 @@ pub fn fertility_brass_polynomial(x: f64, fertility_parameters: &[f64]) -> f64 {
     }
 }
 
+pub fn constant_fertility(_x: f64, fertility_parameters: &[f64]) -> f64 {
+    let c = fertility_parameters[0];
+    c
+}
+
+
+
 pub fn gla_model<T>(
     x: f64,
     aging_func: T,

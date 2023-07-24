@@ -156,7 +156,7 @@ pub fn reproduction_test_couple(
 pub fn mutate_parameter(param: &mut f64, mutation_rate: f64, mutation_strength: f64) {
     if rand::random::<f64>() < mutation_rate {
         let mutation_dist = Normal::new(*param, mutation_strength).unwrap();
-        *param = mutation_dist.sample(&mut rand::thread_rng());
+        *param = mutation_dist.sample(&mut rand::thread_rng()).max(0.0);
     }
 }
 
@@ -202,6 +202,7 @@ pub fn reproduction_couple(
 
 pub fn get_reproduction_population(
     population: &mut Vec<Agent>,
+    assortative_mating: bool,
     normalized_male_fertility_closure: &Box<impl Fn(f64) -> f64>,
     normalized_female_fertility_closure: &Box<impl Fn(f64) -> f64>,
     population_cap: usize,
@@ -212,7 +213,11 @@ pub fn get_reproduction_population(
     b_mutation_strength: f64,
     lmax_mutation_strength: f64,
 ) {
-    sort_population_by_age(population);
+    if assortative_mating {
+        sort_population_by_age(population);
+    }else{
+        population.shuffle(&mut rand::thread_rng());
+    }
     let couples = create_couples(population);
     let reproduction_test = couples
         .iter()
@@ -251,7 +256,9 @@ pub fn get_reproduction_population(
         .collect();
 
     new_babies.shuffle(&mut rand::thread_rng());
-    new_babies = new_babies[..(population_cap as usize - population.len())].to_vec();
+    if new_babies.len() > population_cap as usize - population.len() {
+        new_babies = new_babies[..(population_cap as usize - population.len())].to_vec();
+    }
 
     population.extend(new_babies);
 }

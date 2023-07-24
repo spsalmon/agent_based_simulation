@@ -1,3 +1,4 @@
+use std::fs::File;
 use csv::Writer;
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -15,7 +16,11 @@ struct SimulationResult {
 }
 
 pub fn run_simulation(
+    output_writer: &mut Writer<File>,
     population_cap: usize,
+    simulation_time:usize,
+    replicate_id: i32,
+    assortative_mating: bool,
     aging_parameters: &[f64],
     learning_parameters: &[f64],
     growth_parameters: &[f64],
@@ -34,7 +39,7 @@ pub fn run_simulation(
     normalized_male_fertility_closure: &Box<impl Fn(f64) -> f64>, 
     normalized_female_fertility_closure: &Box<impl Fn(f64) -> f64>
 ) {
-    let mut wtr = Writer::from_path("foo.csv").unwrap();
+    // let mut wtr = Writer::from_path("foo.csv").unwrap();
     let mut population = initialize_population(
         population_cap,
         aging_parameters,
@@ -45,7 +50,7 @@ pub fn run_simulation(
         initial_lmax_distribution,
         initial_female_proportion,
     );
-    let bar = ProgressBar::new(10000);
+    let bar = ProgressBar::new(simulation_time as u64);
     bar.set_style(
         ProgressStyle::with_template(
             "[{elapsed_precise}] {bar:50.cyan/blue} {pos:>7}/{len:7} {msg}",
@@ -53,10 +58,11 @@ pub fn run_simulation(
         .unwrap()
         .progress_chars("##-"),
     );
-    for i in 0..10000 {
+    for i in 0..simulation_time {
         get_death_population(&mut population, time_step, &aging_intermediate_closure);
         get_reproduction_population(
             &mut population,
+            assortative_mating,
             &normalized_male_fertility_closure,
             &normalized_female_fertility_closure,
             population_cap,
@@ -75,9 +81,9 @@ pub fn run_simulation(
             mean_b: b_stats.0,
             mean_lmax: lmax_stats.0,
             time: (i as f64) * time_step,
-            replicate_id: 0,
+            replicate_id: replicate_id,
         };
-        let _ = wtr.serialize(res);
+        let _ = output_writer.serialize(res);
         bar.inc(1);
     }
     bar.finish();
