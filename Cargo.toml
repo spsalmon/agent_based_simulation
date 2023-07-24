@@ -11,7 +11,7 @@ rand_distr = "0.4.3"
 easybench = "1.1.1"
 peroxide = "0.34.0"
 rayon = "1.7.0"
-ndarray = "*"
+ndarray = "0.11.2"
 optimize = "*"
 csv = "1.2.2"
 serde = { version = "*", features = ["derive"] }
