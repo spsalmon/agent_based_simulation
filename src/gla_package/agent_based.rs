@@ -1,7 +1,7 @@
 use peroxide::fuga::GaussLegendre;
 use peroxide::numerical::integral::integrate;
 use rand::seq::SliceRandom;
-use rand_distr::{Distribution, Normal};
+use rand_distr::{Distribution, Normal, num_traits::Float};
 use rayon::prelude::*;
 use std::iter::zip;
 
@@ -73,7 +73,7 @@ pub fn get_proba_of_death_agent(
             )
         },
         (agent.age, agent.age + time_step),
-        GaussLegendre(3),
+        GaussLegendre(5),
     )
 }
 
@@ -81,19 +81,33 @@ pub fn get_death_agent(
     agent: &Agent,
     time_step: f64,
     aging_intermediate_closure: &dyn Fn(f64, &[f64], &[f64], &[f64]) -> f64,
+    remove_non_reproducing: bool,
+    male_menopause: f64,
+    female_menopause: f64,
 ) -> bool {
     let proba_of_death = get_proba_of_death_agent(agent, time_step, aging_intermediate_closure);
-    rand::random::<f64>() < proba_of_death
+    if !remove_non_reproducing {
+        return rand::random::<f64>() < proba_of_death;
+    }
+
+    let menopause_age = if agent.female { female_menopause } else { male_menopause };
+    if menopause_age.is_nan() || agent.age <= menopause_age {
+        return rand::random::<f64>() < proba_of_death;
+    }
+    true
 }
 
 pub fn get_death_population<F: Fn(f64, &[f64], &[f64], &[f64]) -> f64 + Send + Sync>(
     population: &mut Vec<Agent>,
     time_step: f64,
     aging_intermediate_closure: &F,
+    remove_non_reproducing: bool,
+    male_menopause: f64,
+    female_menopause: f64,
 ) {
     let death_test_parallel = population
         .par_iter()
-        .map(|agent| get_death_agent(agent, time_step, aging_intermediate_closure))
+        .map(|agent| get_death_agent(agent, time_step, aging_intermediate_closure, remove_non_reproducing, male_menopause, female_menopause))
         .collect::<Vec<_>>();
     let mut dead_agent_indexes: Vec<usize> = death_test_parallel
         .iter()

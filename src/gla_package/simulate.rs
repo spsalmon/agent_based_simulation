@@ -37,7 +37,10 @@ pub fn run_simulation(
     lmax_mutation_strength: f64,
     aging_intermediate_closure: impl Fn(f64, &[f64], &[f64], &[f64]) -> f64 + Send + Sync,
     normalized_male_fertility_closure: &Box<impl Fn(f64) -> f64>, 
-    normalized_female_fertility_closure: &Box<impl Fn(f64) -> f64>
+    normalized_female_fertility_closure: &Box<impl Fn(f64) -> f64>,
+    remove_non_reproducing: bool,
+    male_menopause: f64,
+    female_menopause: f64,
 ) {
     // let mut wtr = Writer::from_path("foo.csv").unwrap();
     let mut population = initialize_population(
@@ -59,7 +62,7 @@ pub fn run_simulation(
         .progress_chars("##-"),
     );
     for i in 0..simulation_time {
-        get_death_population(&mut population, time_step, &aging_intermediate_closure);
+        get_death_population(&mut population, time_step, &aging_intermediate_closure, remove_non_reproducing, male_menopause, female_menopause);
         get_reproduction_population(
             &mut population,
             assortative_mating,

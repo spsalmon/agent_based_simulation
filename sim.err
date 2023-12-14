@@ -1,0 +1,45 @@
+   Compiling agent_based_model v0.1.0 (/home/spsalmon/agent_based_simulation)
+warning: unused import: `constant_fertility`
+ --> src/main.rs:5:41
+  |
+5 |     growth_function, learning_function, constant_fertility,
+  |                                         ^^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `num_traits::Float`
+ --> src/gla_package/agent_based.rs:4:40
+  |
+4 | use rand_distr::{Distribution, Normal, num_traits::Float};
+  |                                        ^^^^^^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+  --> src/main.rs:76:9
+   |
+76 |     let mut initial_lmax_distribution = [0.15, 0.0];
+   |         ----^^^^^^^^^^^^^^^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` on by default
+
+warning: variable does not need to be mutable
+  --> src/main.rs:93:9
+   |
+93 |     let mut learning_name_part = "with_learning";
+   |         ----^^^^^^^^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: function `constant_fertility` is never used
+  --> src/gla_package/gla.rs:45:8
+   |
+45 | pub fn constant_fertility(_x: f64, fertility_parameters: &[f64]) -> f64 {
+   |        ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: `agent_based_model` (bin "agent_based_model") generated 5 warnings (run `cargo fix --bin "agent_based_model"` to apply 3 suggestions)
+    Finished release [optimized] target(s) in 7.86s
+     Running `target/release/agent_based_model`
+slurmstepd-izbdelhi: error: *** JOB 1963602 ON izbdelhi CANCELLED AT 2023-12-14T12:53:35 ***

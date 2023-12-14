@@ -1,6 +1,5 @@
 mod gla_package;
 use csv::Writer;
-use peroxide::util::print;
 use crate::gla_package::{gla::{
     aging_gompertz_makeham, fertility_brass_polynomial, find_maximum_fertility, gla_model,
     growth_function, learning_function, constant_fertility,
@@ -15,21 +14,26 @@ fn main() {
     let time_step = 1.0;
     let initial_female_proportion = 0.5;
     let minimum_mortality = 1e-5;
-    let aging_parameters = [0.000231526006212, 0.0605373306866185, 0.0035849591251246];
-    let learning_parameters = [0.0012585417888751, 34.27441885224198, 0.239721275246604];
-    let growth_parameters: [f64; 2] = [0.0071174423093754, 0.0910364290513385];
+    let aging_parameters = [0.00275961297460256,0.04326224872667336,0.025201676835511704] ;
+    let learning_parameters = [0.01606792505529796,39.006865144958745,0.11060749334680318];
+    let growth_parameters: [f64; 2] = [0.05168141300917714,0.08765165352033985];
 
-    let female_fertility_parameters = [1.0];
-    let male_fertility_parameters = [1.0];
+    // let female_fertility_parameters = [1.0];
+    // let male_fertility_parameters = [1.0];
 
-    let female_fertility_function = constant_fertility;
-    let male_fertility_function = constant_fertility;
+    // let female_fertility_function = constant_fertility;
+    // let male_fertility_function = constant_fertility;
 
-    // let female_fertility_parameters = [2.445e-5, 14.8, 32.836];
+    let female_fertility_parameters = [2.445e-5, 14.8, 32.836];
+    let male_fertility_parameters = [2.445e-5, 14.8, 32.836];
+
+    let female_menopause = female_fertility_parameters[1] + female_fertility_parameters[2];
+    let male_menopause = male_fertility_parameters[1] + male_fertility_parameters[2];
+
     // let male_fertility_parameters = [0.00000978, 14.8, 47.836];
 
-    // let female_fertility_function = fertility_brass_polynomial;
-    // let male_fertility_function = fertility_brass_polynomial;
+    let female_fertility_function = fertility_brass_polynomial;
+    let male_fertility_function = fertility_brass_polynomial;
 
     let female_maximum_fertility = find_maximum_fertility(
         &female_fertility_function,
@@ -68,13 +72,14 @@ fn main() {
     // println!("Male maximum fertility : {}", male_maximum_fertility);
 
     let initial_age_distribution = [20.0, 10.0];
-    let initial_b_distribution = [0.24, 0.005];
-    let mut initial_lmax_distribution = [0.125, 0.0];
+    let initial_b_distribution = [0.14, 0.005];
+    let mut initial_lmax_distribution = [0.15, 0.0];
 
     let population_cap = 10000;
-    let simulation_time : usize = 100000;
-    let replicate_number = 10;
+    let simulation_time : usize = 600000;
+    let replicate_number = 1;
     let assortative_mating = false;
+    let remove_non_reproducing = true;
 
     let mutable_b = true;
     let mutable_lmax = false;
@@ -83,37 +88,43 @@ fn main() {
     let b_mutation_strength = 0.012;
     let lmax_mutation_strength = 0.012;
 
+    // let base_name_part = "plateau_brass_polynomial_equal_both";
     let base_name_part = "test";
     let mut learning_name_part = "with_learning";
     let mut mating_name_part = "random_mating";
+    let mut removal_name_part = "non_reproducing_kept";
 
     if assortative_mating{
         mating_name_part = "assortative_mating";
+    }
+
+    if remove_non_reproducing{
+        removal_name_part = "non_reproducing_removed";
     }
 
     println!("######################################");
     println!("###### Simulation with learning ######");
     println!("######################################");
 
-    let output_file_name = format!("{}_{}_{}.csv", base_name_part, mating_name_part, learning_name_part);
+    let output_file_name = format!("./simulation_results/{}_{}_{}_{}_{}.csv", base_name_part, mating_name_part, learning_name_part, removal_name_part,initial_lmax_distribution[0]);
     let mut wtr = Writer::from_path(output_file_name).unwrap();
 
     for i in 0..replicate_number{
         println!("Replicate : {}/{}", i+1, replicate_number);
-        run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, b_mutation_rate, lmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure)
+        run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, b_mutation_rate, lmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure, remove_non_reproducing, male_menopause, female_menopause)
     }
 
-    println!("#########################################");
-    println!("###### Simulation without learning ######");
-    println!("#########################################");
-    initial_lmax_distribution = [0.0, 0.0];
-    learning_name_part = "no_learning";
+    // println!("#########################################");
+    // println!("###### Simulation without learning ######");
+    // println!("#########################################");
+    // initial_lmax_distribution = [0.0, 0.0];
+    // learning_name_part = "no_learning";
 
-    let output_file_name = format!("{}_{}_{}.csv", base_name_part, mating_name_part, learning_name_part);
-    let mut wtr = Writer::from_path(output_file_name).unwrap();
+    // let output_file_name = format!("./simulation_results/{}_{}_{}.csv", base_name_part, mating_name_part, learning_name_part);
+    // let mut wtr = Writer::from_path(output_file_name).unwrap();
 
-    for i in 0..replicate_number{
-        println!("Replicate : {}/{}", i+1, replicate_number);
-        run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, b_mutation_rate, lmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure)
-    }
+    // for i in 0..replicate_number{
+    //     println!("Replicate : {}/{}", i+1, replicate_number);
+    //     run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, b_mutation_rate, lmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure)
+    // }
 }
