@@ -115,7 +115,7 @@ fn main() {
 
     for i in 0..replicate_number{
         println!("Replicate : {}/{}", i+1, replicate_number);
-        run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, b_mutation_rate, lmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure, remove_non_reproducing, male_menopause, female_menopause)
+        run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_gmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, mutable_gmax, b_mutation_rate, lmax_mutation_rate, gmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, gmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure, remove_non_reproducing, male_menopause, female_menopause)
     }
 
     println!("#########################################");
