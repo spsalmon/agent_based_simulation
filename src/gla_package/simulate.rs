@@ -11,6 +11,7 @@ use crate::gla_package::agent_based::{
 struct SimulationResult {
     mean_b: f64,
     mean_lmax: f64,
+    mean_gmax: f64,
     time: f64,
     replicate_id: i32,
 }
@@ -27,14 +28,18 @@ pub fn run_simulation(
     initial_age_distribution: [f64; 2],
     initial_b_distribution: [f64; 2],
     initial_lmax_distribution: [f64; 2],
+    initial_gmax_distribution: [f64; 2],
     initial_female_proportion: f64,
     time_step: f64,
     mutable_b: bool,
     mutable_lmax: bool,
+    mutable_gmax: bool,
     b_mutation_rate: f64,
     lmax_mutation_rate: f64,
+    gmax_mutation_rate: f64,
     b_mutation_strength: f64,
     lmax_mutation_strength: f64,
+    gmax_mutation_strength: f64,
     aging_intermediate_closure: impl Fn(f64, &[f64], &[f64], &[f64]) -> f64 + Send + Sync,
     normalized_male_fertility_closure: &Box<impl Fn(f64) -> f64>, 
     normalized_female_fertility_closure: &Box<impl Fn(f64) -> f64>,
@@ -51,6 +56,7 @@ pub fn run_simulation(
         initial_age_distribution,
         initial_b_distribution,
         initial_lmax_distribution,
+        initial_gmax_distribution,
         initial_female_proportion,
     );
     let bar = ProgressBar::new(simulation_time as u64);
@@ -71,18 +77,23 @@ pub fn run_simulation(
             population_cap,
             mutable_b,
             mutable_lmax,
+            mutable_gmax,
             b_mutation_rate,
             lmax_mutation_rate,
+            gmax_mutation_rate,
             b_mutation_strength,
             lmax_mutation_strength,
+            gmax_mutation_strength,
         );
         increment_age_population(&mut population, time_step);
         let b_stats = get_population_b_stats(&population);
         let lmax_stats = get_population_lmax_stats(&population);
+        let gmax_stats = get_population_lmax_stats(&population);
 
         let res = SimulationResult {
             mean_b: b_stats.0,
             mean_lmax: lmax_stats.0,
+            mean_gmax: gmax_stats.0,
             time: (i as f64) * time_step,
             replicate_id: replicate_id,
         };

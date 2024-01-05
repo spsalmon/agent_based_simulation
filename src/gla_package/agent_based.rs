@@ -22,6 +22,7 @@ pub fn initialize_population<'a, 'b>(
     initial_age_distribution: [f64; 2],
     initial_b_distribution: [f64; 2],
     initial_lmax_distribution: [f64; 2],
+    initial_gmax_distribution: [f64; 2],
     initial_female_proportion: f64,
 ) -> Vec<Agent> {
     let mut population = Vec::with_capacity(initial_population_size);
@@ -30,12 +31,15 @@ pub fn initialize_population<'a, 'b>(
     let b_dist = Normal::new(initial_b_distribution[0], initial_b_distribution[1]).unwrap();
     let lmax_dist =
         Normal::new(initial_lmax_distribution[0], initial_lmax_distribution[1]).unwrap();
+    let gmax_dist =
+        Normal::new(initial_gmax_distribution[0], initial_gmax_distribution[1]).unwrap();
 
     for _ in 0..initial_population_size {
         let age: f64 = age_dist.sample(&mut rand::thread_rng()).max(0.0).round();
         let female: bool = rand::random::<f64>() < initial_female_proportion;
         let b = b_dist.sample(&mut rand::thread_rng()).max(0.0);
         let lmax = lmax_dist.sample(&mut rand::thread_rng()).max(0.0);
+        let gmax = gmax_dist.sample(&mut rand::thread_rng()).max(0.0);
 
         let mut agent_aging_parameters = aging_parameters.to_owned();
         agent_aging_parameters[1] = b;
@@ -44,6 +48,7 @@ pub fn initialize_population<'a, 'b>(
         agent_learning_parameters[0] = lmax;
 
         let agent_growth_parameters = growth_parameters.to_owned();
+        agent_growth_parameters[0] = gmax;
 
         let agent = Agent {
             age,
@@ -181,10 +186,13 @@ pub fn reproduction_couple(
     growth_parameters: &[f64],
     mutable_b: bool,
     mutable_lmax: bool,
+    mutable_gmax: bool,
     b_mutation_rate: f64,
     lmax_mutation_rate: f64,
+    gmax_mutation_rate: f64,
     b_mutation_strength: f64,
     lmax_mutation_strength: f64,
+    gmax_mutation_strength: f64,
 ) -> Agent {
     let mut b = (couple.0.aging_parameters[1] + couple.1.aging_parameters[1]) / 2.0;
     if mutable_b {
@@ -193,6 +201,10 @@ pub fn reproduction_couple(
     let mut lmax = (couple.0.learning_parameters[0] + couple.1.learning_parameters[0]) / 2.0;
     if mutable_lmax {
         mutate_parameter(&mut lmax, lmax_mutation_rate, lmax_mutation_strength);
+    }
+    let mut gmax = (couple.0.growth_parameters[0] + couple.1.growth_parameters[0]) / 2.0;
+    if mutable_gmax {
+        mutate_parameter(&mut gmax, gmax_mutation_rate, gmax_mutation_strength);
     }
 
     let female: bool = rand::random::<f64>() < 0.5;
@@ -203,7 +215,8 @@ pub fn reproduction_couple(
     let mut agent_learning_parameters = learning_parameters.to_owned();
     agent_learning_parameters[0] = lmax;
 
-    let agent_growth_parameters = growth_parameters.to_owned();
+    let mut agent_growth_parameters = growth_parameters.to_owned();
+    agent_growth_parameters[0] = gmax;
 
     Agent {
         age: 0.0,
@@ -222,10 +235,13 @@ pub fn get_reproduction_population(
     population_cap: usize,
     mutable_b: bool,
     mutable_lmax: bool,
+    mutable_gmax: bool,
     b_mutation_rate: f64,
     lmax_mutation_rate: f64,
+    gmax_mutation_rate: f64,
     b_mutation_strength: f64,
     lmax_mutation_strength: f64,
+    gmax_mutation_strength: f64,
 ) {
     if assortative_mating {
         sort_population_by_age(population);
@@ -261,10 +277,13 @@ pub fn get_reproduction_population(
                 &population[*index].growth_parameters,
                 mutable_b,
                 mutable_lmax,
+                mutable_gmax,
                 b_mutation_rate,
                 lmax_mutation_rate,
+                gmax_mutation_rate,
                 b_mutation_strength,
                 lmax_mutation_strength,
+                gmax_mutation_strength,
             )
         })
         .collect();
@@ -309,4 +328,21 @@ pub fn get_population_lmax_stats(population: &Vec<Agent>) -> (f64, f64){
         / lmax_values.len() as f64;
 
     (lmax_mean, lmax_variance)
+}
+
+pub fn get_population_gmax_stats(population: &Vec<Agent>) -> (f64, f64){
+    let gmax_values = population
+        .iter()
+        .map(|agent| agent.growth_parameters[0])
+        .collect::<Vec<_>>();
+
+    let gmax_mean = gmax_values.par_iter().sum::<f64>() / gmax_values.len() as f64;
+
+    let gmax_variance = gmax_values
+        .par_iter()
+        .map(|gmax| (gmax - gmax_mean).powi(2))
+        .sum::<f64>()
+        / gmax_values.len() as f64;
+
+    (gmax_mean, gmax_variance)
 }
