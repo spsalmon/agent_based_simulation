@@ -73,14 +73,16 @@ fn main() {
 
     let initial_age_distribution = [20.0, 10.0];
     let initial_b_distribution = [0.14, 0.005];
-    let mut initial_lmax_distribution = [0.15, 0.0];
-    let mut initial_gmax_distribution = [0.0, 0.0];
+    let mut initial_lmax_distribution = [0.125, 0.0];
+    let mut initial_gmax_distribution = [0.05168141300917714, 0.0];
 
     let population_cap = 10000;
-    let simulation_time : usize = 600000;
-    let replicate_number = 5;
-    let assortative_mating = true;
+    let simulation_time : usize = 1000;
+    let replicate_number = 500;
+    let assortative_mating = false;
     let remove_non_reproducing = true;
+    let tradeoff = false;
+    let start_b = initial_b_distribution[0];
 
     let mutable_b = true;
     let mutable_lmax = false;
@@ -92,11 +94,16 @@ fn main() {
     let lmax_mutation_strength = 0.012;
     let gmax_mutation_strength = 0.012;
 
-    let base_name_part = "plateau_brass_polynomial_equal_both";
-    // let base_name_part = "early_slope_brass_polynomial_equal_both";
+    // let base_name_part = "plateau_brass_polynomial_equal_both";
+    let base_name_part = "early_slope_brass_polynomial_equal_both";
     let mut learning_name_part = "with_learning";
     let mut mating_name_part = "random_mating";
     let mut removal_name_part = "non_reproducing_kept";
+    let mut tradeoff_name_part = "no_tradeoff";
+
+    if tradeoff{
+        tradeoff_name_part = "tradeoff";
+    }
 
     if assortative_mating{
         mating_name_part = "assortative_mating";
@@ -110,25 +117,25 @@ fn main() {
     println!("###### Simulation with learning ######");
     println!("######################################");
 
-    let output_file_name = format!("./simulation_results/{}_{}_{}_{}_{}.csv", base_name_part, mating_name_part, learning_name_part, removal_name_part,initial_lmax_distribution[0]);
+    let output_file_name = format!("./simulation_results/{}_{}_{}_{}_{}_{}.csv", base_name_part, mating_name_part, learning_name_part, removal_name_part, tradeoff_name_part,initial_lmax_distribution[0]);
     let mut wtr = Writer::from_path(output_file_name).unwrap();
 
     for i in 0..replicate_number{
         println!("Replicate : {}/{}", i+1, replicate_number);
-        run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_gmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, mutable_gmax, b_mutation_rate, lmax_mutation_rate, gmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, gmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure, remove_non_reproducing, male_menopause, female_menopause)
+        run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_gmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, mutable_gmax, b_mutation_rate, lmax_mutation_rate, gmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, gmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure, tradeoff, start_b, remove_non_reproducing, male_menopause, female_menopause)
     }
 
-    println!("#########################################");
-    println!("###### Simulation without learning ######");
-    println!("#########################################");
-    initial_lmax_distribution = [0.0, 0.0];
-    learning_name_part = "no_learning";
+    // println!("#########################################");
+    // println!("###### Simulation without learning ######");
+    // println!("#########################################");
+    // initial_lmax_distribution = [0.0, 0.0];
+    // learning_name_part = "no_learning";
 
-    let output_file_name = format!("./simulation_results/{}_{}_{}_{}.csv", base_name_part, mating_name_part, learning_name_part, removal_name_part);
-    let mut wtr = Writer::from_path(output_file_name).unwrap();
+    // let output_file_name = format!("./simulation_results/{}_{}_{}_{}_{}.csv", base_name_part, mating_name_part, learning_name_part, removal_name_part, tradeoff_name_part);
+    // let mut wtr = Writer::from_path(output_file_name).unwrap();
 
-    for i in 0..replicate_number{
-        println!("Replicate : {}/{}", i+1, replicate_number);
-        run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_gmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, mutable_gmax, b_mutation_rate, lmax_mutation_rate, gmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, gmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure, remove_non_reproducing, male_menopause, female_menopause)
-    }
+    // for i in 0..replicate_number{
+    //     println!("Replicate : {}/{}", i+1, replicate_number);
+    //     run_simulation(&mut wtr, population_cap, simulation_time, i, assortative_mating, &aging_parameters, &learning_parameters, &growth_parameters, initial_age_distribution, initial_b_distribution, initial_lmax_distribution, initial_gmax_distribution, initial_female_proportion, time_step, mutable_b, mutable_lmax, mutable_gmax, b_mutation_rate, lmax_mutation_rate, gmax_mutation_rate, b_mutation_strength, lmax_mutation_strength, gmax_mutation_strength, aging_intermediate_closure, &normalized_male_fertility_closure, &normalized_female_fertility_closure, tradeoff, start_b, remove_non_reproducing, male_menopause, female_menopause)
+    // }
 }

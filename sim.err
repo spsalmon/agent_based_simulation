@@ -13,6 +13,32 @@ warning: unused import: `num_traits::Float`
 4 | use rand_distr::{Distribution, Normal, num_traits::Float};
   |                                        ^^^^^^^^^^^^^^^^^
 
+warning: variable does not need to be mutable
+  --> src/main.rs:76:9
+   |
+76 |     let mut initial_lmax_distribution = [0.125, 0.0];
+   |         ----^^^^^^^^^^^^^^^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+   |
+   = note: `#[warn(unused_mut)]` on by default
+
+warning: variable does not need to be mutable
+  --> src/main.rs:77:9
+   |
+77 |     let mut initial_gmax_distribution = [0.05168141300917714, 0.0];
+   |         ----^^^^^^^^^^^^^^^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+  --> src/main.rs:99:9
+   |
+99 |     let mut learning_name_part = "with_learning";
+   |         ----^^^^^^^^^^^^^^^^^^
+   |         |
+   |         help: remove this `mut`
+
 warning: function `constant_fertility` is never used
   --> src/gla_package/gla.rs:45:8
    |
@@ -21,6 +47,6 @@ warning: function `constant_fertility` is never used
    |
    = note: `#[warn(dead_code)]` on by default
 
-warning: `agent_based_model` (bin "agent_based_model") generated 3 warnings (run `cargo fix --bin "agent_based_model"` to apply 1 suggestion)
-    Finished release [optimized] target(s) in 3.21s
+warning: `agent_based_model` (bin "agent_based_model") generated 6 warnings (run `cargo fix --bin "agent_based_model"` to apply 4 suggestions)
+    Finished release [optimized] target(s) in 2.68s
      Running `target/release/agent_based_model`

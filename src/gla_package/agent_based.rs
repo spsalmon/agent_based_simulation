@@ -47,7 +47,7 @@ pub fn initialize_population<'a, 'b>(
         let mut agent_learning_parameters = learning_parameters.to_owned();
         agent_learning_parameters[0] = lmax;
 
-        let agent_growth_parameters = growth_parameters.to_owned();
+        let mut agent_growth_parameters = growth_parameters.to_owned();
         agent_growth_parameters[0] = gmax;
 
         let agent = Agent {
@@ -164,9 +164,18 @@ pub fn reproduction_test_couple(
     couple: &(&Agent, &Agent),
     normalized_male_fertility_closure: &Box<impl Fn(f64) -> f64>,
     normalized_female_fertility_closure: &Box<impl Fn(f64) -> f64>,
+    tradeoff: bool,
+    start_b: f64,
 ) -> bool {
-    let male_chance_to_reproduce = normalized_male_fertility_closure(couple.0.age);
-    let female_chance_to_reproduce = normalized_female_fertility_closure(couple.1.age);
+
+    let mut tradeoff_male = 1f64;
+    let mut tradeoff_female = 1f64;
+    if tradeoff{
+        tradeoff_male = couple.0.aging_parameters[1]/start_b;
+        tradeoff_female = couple.1.aging_parameters[1]/start_b;
+    }
+    let male_chance_to_reproduce = normalized_male_fertility_closure(couple.0.age)*tradeoff_male;
+    let female_chance_to_reproduce = normalized_female_fertility_closure(couple.1.age)*tradeoff_female;
 
     (rand::random::<f64>() < male_chance_to_reproduce)
         && (rand::random::<f64>() < female_chance_to_reproduce)
@@ -232,6 +241,8 @@ pub fn get_reproduction_population(
     assortative_mating: bool,
     normalized_male_fertility_closure: &Box<impl Fn(f64) -> f64>,
     normalized_female_fertility_closure: &Box<impl Fn(f64) -> f64>,
+    tradeoff: bool,
+    start_b: f64,
     population_cap: usize,
     mutable_b: bool,
     mutable_lmax: bool,
@@ -256,6 +267,8 @@ pub fn get_reproduction_population(
                 couple,
                 normalized_male_fertility_closure,
                 normalized_female_fertility_closure,
+                tradeoff,
+                start_b,
             )
         })
         .collect::<Vec<_>>();

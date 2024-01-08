@@ -3,7 +3,7 @@ use csv::Writer;
 use indicatif::{ProgressBar, ProgressStyle};
 
 use crate::gla_package::agent_based::{
-    get_death_population, get_population_b_stats, get_population_lmax_stats, get_reproduction_population,
+    get_death_population, get_population_b_stats, get_population_lmax_stats, get_population_gmax_stats, get_reproduction_population,
     increment_age_population, initialize_population,
 };
 
@@ -43,6 +43,8 @@ pub fn run_simulation(
     aging_intermediate_closure: impl Fn(f64, &[f64], &[f64], &[f64]) -> f64 + Send + Sync,
     normalized_male_fertility_closure: &Box<impl Fn(f64) -> f64>, 
     normalized_female_fertility_closure: &Box<impl Fn(f64) -> f64>,
+    tradeoff:bool,
+    start_b: f64,
     remove_non_reproducing: bool,
     male_menopause: f64,
     female_menopause: f64,
@@ -74,6 +76,8 @@ pub fn run_simulation(
             assortative_mating,
             &normalized_male_fertility_closure,
             &normalized_female_fertility_closure,
+            tradeoff,
+            start_b,
             population_cap,
             mutable_b,
             mutable_lmax,
@@ -88,7 +92,7 @@ pub fn run_simulation(
         increment_age_population(&mut population, time_step);
         let b_stats = get_population_b_stats(&population);
         let lmax_stats = get_population_lmax_stats(&population);
-        let gmax_stats = get_population_lmax_stats(&population);
+        let gmax_stats = get_population_gmax_stats(&population);
 
         let res = SimulationResult {
             mean_b: b_stats.0,

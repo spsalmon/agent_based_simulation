@@ -1,16 +1,26 @@
 ######################################
 ###### Simulation with learning ######
 ######################################
-Replicate : 1/5
-Replicate : 2/5
-Replicate : 3/5
-Replicate : 4/5
-Replicate : 5/5
-#########################################
-###### Simulation without learning ######
-#########################################
-Replicate : 1/5
-Replicate : 2/5
-Replicate : 3/5
-Replicate : 4/5
-Replicate : 5/5
+Replicate : 1/500
+Replicate : 2/500
+Replicate : 3/500
+Replicate : 4/500
+Replicate : 5/500
+Replicate : 6/500
+Replicate : 7/500
+Replicate : 8/500
+Replicate : 9/500
+Replicate : 10/500
+Replicate : 11/500
+Replicate : 12/500
+Replicate : 13/500
+Replicate : 14/500
+Replicate : 15/500
+Replicate : 16/500
+Replicate : 17/500
+Replicate : 18/500
+Replicate : 19/500
+Replicate : 20/500
+Replicate : 21/500
+Replicate : 22/500
+Replicate : 23/500
